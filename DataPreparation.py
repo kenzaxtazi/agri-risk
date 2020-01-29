@@ -56,8 +56,10 @@ CDD = CDD_sum.interp(coords={'lat':lats_new, 'lon':lons_new}, method='nearest')
 
 # to a DataFrame
 df = CDD.to_dataframe()
-#df['CWD'] = CWD('CWD')
-#df['CFD'] = CFD('CFD')
+CWD_df = CWD.to_dataframe()
+CFD_df = CFD.to_dataframe()
+df['CWD'] = CWD_df['CWD']
+df['CFD'] = CFD_df['CFD']
 df['Yield'] = yields.flatten()
 
 # remove NaN
@@ -66,7 +68,7 @@ df_final = df_clean.reset_index()
 
 # Divide into stratified validation and training data
 split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
-for train_index, val_index in split.split(df_clean, df_final["lat"]):
+for train_index, val_index in split.split(df_final, df_final['lat'],df_final['lon']):
     train_df = df_final.loc[train_index]
     val_df = df_final.loc[val_index]
 
