@@ -48,26 +48,27 @@ CWD_autumn = (cum_wet_days.CWD).sel(time = '2000-10-16T00:00:00.000000000')
 CWD_sum = CWD_winter + CWD_spring + CWD_summer + CWD_autumn
 
 # resampling
-lons_new = np.linspace(CDD.lon.min(), CDD.lon.max(), 4320)
-lats_new = np.linspace(CDD.lat.min(), CDD.lat.max(), 2160)
+lons_new = np.linspace(cum_dry_days.lon.min(), cum_dry_days.lon.max(), 4320)
+lats_new = np.linspace(cum_dry_days.lat.min(), cum_dry_days.lat.max(), 2160)
 CWD = CWD_sum.interp(coords={'lat':lats_new, 'lon':lons_new}, method='nearest')
 CFD = CFD_sum.interp(coords={'lat':lats_new, 'lon':lons_new}, method='nearest')
 CDD = CDD_sum.interp(coords={'lat':lats_new, 'lon':lons_new}, method='nearest')
 
 # to a DataFrame
 df = CDD.to_dataframe()
-df['CWD'] = CWD('CWD')
-df['CFD'] = CFD('CFD')
+#df['CWD'] = CWD('CWD')
+#df['CFD'] = CFD('CFD')
 df['Yield'] = yields.flatten()
 
 # remove NaN
 df_clean = df.dropna()
+df_final = df_clean.reset_index()
 
 # Divide into stratified validation and training data
 split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
-for train_index, val_index in split.split(df_clean, df_clean["latitude"]):
-    train_df = df_clean.loc[train_index]
-    val_df = df_clean.loc[val_index]
+for train_index, val_index in split.split(df_clean, df_final["lat"]):
+    train_df = df_final.loc[train_index]
+    val_df = df_final.loc[val_index]
 
 
 
