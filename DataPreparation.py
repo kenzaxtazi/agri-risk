@@ -47,7 +47,7 @@ CWD_summer = (cum_wet_days.CWD).sel(time = '2000-07-16T00:00:00.000000000')
 CWD_autumn = (cum_wet_days.CWD).sel(time = '2000-10-16T00:00:00.000000000')
 CWD_sum = CWD_winter + CWD_spring + CWD_summer + CWD_autumn
 
-# resampling
+# Resampling
 lons_new = np.linspace(cum_dry_days.lon.min(), cum_dry_days.lon.max(), 4320)
 lats_new = np.linspace(cum_dry_days.lat.min(), cum_dry_days.lat.max(), 2160)
 CWD = CWD_sum.interp(coords={'lat':lats_new, 'lon':lons_new}, method='nearest')
