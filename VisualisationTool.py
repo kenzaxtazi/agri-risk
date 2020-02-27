@@ -3,12 +3,13 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as tck
 import cartopy.crs as ccrs
 import xarray as xr
+import cartopy.feature as cf
 
 filepath = '/Users/kenzatazi/Downloads/yields.csv'
 year = '2040'
 
 def static_worldmap(filepath, year):
-    """ Produces static plot of yield predictions """
+    """ Produces static plot of world yield predictions """
 
     # create dataframe of relevant variables
     df_raw =  pd.read_csv(filepath)
@@ -41,7 +42,8 @@ def static_worldmap(filepath, year):
     # plot
     plt.figure(figsize=(12,5))
     ax = plt.subplot(projection=ccrs.PlateCarree())
-    da.plot.pcolormesh('x', 'y', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 'format': tck.PercentFormatter(xmax=1.0)}) #'label': '%'
+    da.plot.pcolormesh('x', 'y', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 
+                                                     'format': tck.PercentFormatter(xmax=1.0)}) #'label': '%'
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
     ax.set_extent([-160, 180, -60, 85])
@@ -52,5 +54,35 @@ def static_worldmap(filepath, year):
     
     plt.text(-170,-50, t1 + '\n' + t2 + '\n' + t3 + '\n'+ t4, fontsize=10,
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
+    plt.show()
 
+def static_countrymap(filepath, year, iso3):
+    """ Produces static plot of a given country's yield predictions """
+    
+    # create dataframe of relevant variables
+    df_raw =  pd.read_csv(filepath)
+    df = df_raw[['x','y','maiz_percent_change','iso3_2005']]
+    country_df = df[df['iso3_2005'] == iso3]
+    country_change = country_df['maiz_percent_change'].mean()
+
+    # convert dataframe to data array
+    df_values = country_df[['x','y','maiz_percent_change']]
+    df_pv = df_values.pivot(index='y', columns='x')
+    df_pv = df_pv.droplevel(0, axis=1)
+    da = xr.DataArray(data=df_pv)
+
+    # plot
+    plt.figure(figsize=(12,5))
+    ax = plt.subplot(projection=ccrs.PlateCarree())
+    da.plot.pcolormesh('x', 'y', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 
+                                                     'format': tck.PercentFormatter(xmax=1.0)})
+    ax.gridlines(draw_labels=True)
+    ax.coastlines(resolution='50m')
+    ax.add_feature(cf.BORDERS)
+    ax.set_extent([-135, -65, 22, 55])  #TODO 
+    ax.set_title('Maize Yield Change ' + year + '\n', size='xx-large')
+    ax.set_aspect("equal")
+    
+    t1 = 'National yield change: {:.2%}'.format(country_change)
+    plt.text(-130, 26, t1, fontsize=10, bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
