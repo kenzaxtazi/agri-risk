@@ -4,9 +4,12 @@ import matplotlib.ticker as tck
 import cartopy.crs as ccrs
 import xarray as xr
 import cartopy.feature as cf
+import seaborn as sns
 
 filepath = '/Users/kenzatazi/Downloads/yields.csv'
 year = '2040'
+
+sns.set(style="white", context="talk")
 
 def static_worldmap(filepath, year):
     """ Produces static plot of world yield predictions """
@@ -106,14 +109,19 @@ def yield_vs_time(filepath, year):
 
 def feature_importance(filepath):
     """ returns plot of feature importance """
+    
+    # fake dataframe 
+    df = pd.DataFrame({'Feature1': 80, 'Feature2': 50, 'Feature3': 44, 
+                       'Feature4': 13, 'Feature5': 2, 'Feature6': 0.09})
 
-    df =  pd.read_csv(filepath)
-    names = df['Features'].values
-    importance = df['Importance'].values
-    fig = plt.figure()
+    # df =  pd.read_csv(filepath)
+    # names = df['Features'].values
+    # importance = df['Importance'].values
+
+    sns.barplot(data= df, palette="rocket", orient='h')
     plt.title('Feature Importance')
-    plt.barh(importance, tick_label=names)
+    plt.xlabel('Importance (%)')
 
-    # could make this more interesting by including the spread
+    # could make this more interesting by including the spread and error bar
 
 
