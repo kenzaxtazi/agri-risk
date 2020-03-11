@@ -2,9 +2,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import xarray as xr
+
 
 sns.set(style="white", rc={"axes.facecolor": (0, 0, 0, 0)})
+
 filepath = '/Users/kenzatazi/Downloads/head_of_soils_recommendations_MGM.csv'
+
+filepath1 = '/Users/kenzatazi/Downloads/FAOSTAT_data_3-11-2020.csv'
+filepath2 = '/Users/kenzatazi/Downloads/Data_Extract_From_WDI_Database_Archives_(beta)/291aee82-3d52-4642-abb2-337c201bfa47_Data.csv'
 
 
 def historical_yield(filepath):
@@ -12,7 +18,6 @@ def historical_yield(filepath):
     
 
     plt.figure()
-
 
 
 def agroclimatic_indicators(filepath):
@@ -109,14 +114,22 @@ def soil_types(filepath):
     plt.xlabel('Soil type')
     df.hist(bins=107, align='mid', rwidth=0.75)
     plt.show()
-   
-    
-def gdp(filepath):  
-    df = df_raw['gdp']
 
-    plt.figure()
-    plt.title('GDP distribution')
-    df.hist(density=True)
+
+def gdp(filepath1, filepath2):
+    yield_df = pd.read_csv(filepath1)
+    gdp_df = pd.read_csv(filepath2)
+    gdp_df['GDP'] = pd.to_numeric(gdp_df['2010 [YR2010]'], errors='coerce')
+    
+
+    big_df = pd.concat([yield_df, gdp_df], axis=1, sort=False)
+    df = big_df.dropna()
+    
+    
+    df.plot.scatter(x='GDP', y='Value')
+    plt.title('Yield as a function of GDP per capita')
+    plt.xlabel('GDP per capita (USD)')
+    plt.ylabel('Yield (tonnes/hectare)')
 
 
 def climate_zones(filepath):
