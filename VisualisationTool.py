@@ -56,9 +56,12 @@ def static_worldmap(filepath, year):
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
 
-def static_countrymap(filepath, year, iso3):
+def static_countrymap(filepath, year, iso3='USA'):
     """ Produces static plot of a given country's yield predictions """
     
+    coords = {'USA': [-135, -65, 22, 55], 'CHN': [71, 140, 15, 55],
+              'BRA': [-80, -30, -40, 8]}
+
     # create dataframe of relevant variables
     df_raw =  pd.read_csv(filepath)
     df = df_raw[['x','y','maiz_percent_change','iso3_2005']]
@@ -79,10 +82,38 @@ def static_countrymap(filepath, year, iso3):
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
     ax.add_feature(cf.BORDERS)
-    ax.set_extent([-135, -65, 22, 55])  #TODO 
+    ax.set_extent(coords[iso3])  
     ax.set_title('Maize Yield Change ' + year + '\n', size='xx-large')
     ax.set_aspect("equal")
     
     t1 = 'National yield change: {:.2%}'.format(country_change)
-    plt.text(-130, 26, t1, fontsize=10, bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
+    plt.text((coords[iso3])[0]+5, (coords[iso3])[2]+5, t1, fontsize=10, 
+             bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
+
+
+def yield_vs_time(filepath, year):
+    """ Return a matplotlib graph of yield as a function of time """
+
+    # Seperate data into classes
+
+    # Plot
+    plt.figure(figsize=(12,5))
+    plt.title('Yield change as a function of time')
+    plt.xlabel('Year')
+    plt.ylabel('Yield change')
+
+
+def feature_importance(filepath):
+    """ returns plot of feature importance """
+
+    df =  pd.read_csv(filepath)
+    names = df['Features'].values
+    importance = df['Importance'].values
+    fig = plt.figure()
+    plt.title('Feature Importance')
+    plt.barh(importance, tick_label=names)
+
+    # could make this more interesting by including the spread
+
+
