@@ -64,7 +64,7 @@ def historical_yield(filepath, year):
 
 
 def agroclimatic_indicators(filepath):
-    """ returns facet grid plot of the different indicators for 2010"""
+    """ returns histograms of the different indicators for 2010"""
     # Data (look at spread in different places over one year)
 
     df_raw =  pd.read_csv(filepath)
