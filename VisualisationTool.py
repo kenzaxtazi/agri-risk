@@ -18,7 +18,7 @@ def static_worldmap(filepath, year):
     df_raw =  pd.read_csv(filepath)
     df = df_raw[['x','y','maiz_percent_change','iso3_2005']]
 
-    # calculate mean changes for global, LIFDC and UK
+    # calculate mean changes for global, LIFDC and US
     global_change = df['maiz_percent_change'].mean()
     lifdc_df = df[df['iso3_2005'].isin(['AFG', 'BGD', 'BEN', 'BGD', 'BDI', 'CMR', 'CAF',
                     'TCD', 'COG', 'CIV', 'PRK', 'COD', 'DJI', 'ERI', 'ETH', 'GMB', 'GHA',
