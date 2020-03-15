@@ -1,8 +1,11 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as tck
 import numpy as np
 import seaborn as sns
+import cartopy.crs as ccrs
 import xarray as xr
+import cartopy.feature as cf
 
 
 sns.set(style="white", rc={"axes.facecolor": (0, 0, 0, 0)})
@@ -13,11 +16,53 @@ filepath1 = '/Users/kenzatazi/Downloads/FAOSTAT_data_3-11-2020.csv'
 filepath2 = '/Users/kenzatazi/Downloads/Data_Extract_From_WDI_Database_Archives_(beta)/291aee82-3d52-4642-abb2-337c201bfa47_Data.csv'
 
 
-def historical_yield(filepath):
-    """ Returns the bar chart with the ten largest producers of maize """
+def historical_yield(filepath, year):
+    """ Returns the global map of maize yield """
     
+    # create dataframe of relevant variables
+    df_raw =  pd.read_csv(filepath)
+    df = df_raw[['x','y','maize_a_' + year, 'iso3']]
 
-    plt.figure()
+    # calculate mean for global, LIFDC and US
+    global_mean = df['maize_a_' + year].mean()
+    lifdc_df = df[df['iso3'].isin(['AFG', 'BGD', 'BEN', 'BGD', 'BDI', 'CMR', 'CAF',
+                    'TCD', 'COG', 'CIV', 'PRK', 'COD', 'DJI', 'ERI', 'ETH', 'GMB', 'GHA',
+                    'GNB', 'HTI', 'IND', 'KEN', 'KGZ', 'LSO', 'LBR', 'MDG', 'MWI', 'MLI',
+                    'MRT', 'MOZ', 'NPL', 'NIC', 'NER', 'RWA', 'STP', 'SEN', 'SLE', 'SOM',
+                    'SLP', 'SSD', 'SDN', 'SYR', 'TJK', 'TGO', 'UGA', 'TZA', 'UZB', 'VNM',
+                    'YEM', 'ZWE'])]
+    lifdc_mean = lifdc_df['maize_a_' + year].mean()
+    us_df = df[df['iso3'] == 'USA']
+    us_mean = us_df['maize_a_' + year].mean()
+
+
+    # text for box
+    t1 = 'Average yield :'
+    t2 = 'USA= {:.2e} ton/ha'.format(us_mean)
+    t3 = 'LIFDC = {:.2e} ton/ha'.format(lifdc_mean)
+    t4 = 'Global= {:.2e} ton/ha'.format(global_mean)
+
+    # to DataArray
+    df_values = df[['x','y','maize_a_' + year]]
+    df_pv = df_values.pivot(index='y', columns='x')
+    df_pv = df_pv.droplevel(0, axis=1)
+    da = xr.DataArray(data=df_pv)
+
+    # plot
+    plt.figure(figsize=(12,5))
+    ax = plt.subplot(projection=ccrs.PlateCarree())
+    da.plot.pcolormesh('x', 'y', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 
+                                                     'format': '%.2e'})
+    ax.gridlines(draw_labels=True)
+    ax.coastlines(resolution='50m')
+    ax.set_extent([-160, 180, -60, 85])
+    ax.set_title('Maize Yield ' + year + '\n', size='xx-large')
+    ax.set_xlabel('Longitude')
+    ax.set_ylabel('Latitude')
+    
+    plt.text(-170,-50, t1 + '\n' + t2 + '\n' + t3 + '\n'+ t4, fontsize=10,
+             bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
+    plt.show()
 
 
 def agroclimatic_indicators(filepath):
@@ -121,10 +166,8 @@ def gdp(filepath1, filepath2):
     gdp_df = pd.read_csv(filepath2)
     gdp_df['GDP'] = pd.to_numeric(gdp_df['2010 [YR2010]'], errors='coerce')
     
-
     big_df = pd.concat([yield_df, gdp_df], axis=1, sort=False)
     df = big_df.dropna()
-    
     
     df.plot.scatter(x='GDP', y='Value')
     plt.title('Yield as a function of GDP per capita')
@@ -136,7 +179,7 @@ def climate_zones(filepath):
 
     """ bar chart with climate zones of haversted areas """
 
-    names = ['Tropics', 'Subtropics \n (summer rainfall)',
+    names = ['Tropics', 'Subtropics\n(summer\nrainfall)',
              'Subtropics\n(winter\nrainfall)', 'Temperate\n(oceanic)',
              'Temperate\n(sub-\ncontinental)', 'Temperate\n(continental)',
              'Boreal\n(oceanic)', 'Boreal\n(sub-\ncontinental)',
@@ -147,8 +190,8 @@ def climate_zones(filepath):
     df_clean = df[df >= 0]
 
     hist, bin_edges = np.histogram(df_clean)
-    
-    plt.figure()
+
+    plt.figure()    
+    plt.bar(names, hist)
     plt.title('Climate zones')
-    plt.bar(names, float(hist)/len(df_clean))
     plt.show()
