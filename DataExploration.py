@@ -8,7 +8,7 @@ import xarray as xr
 import cartopy.feature as cf
 
 
-filepath = '/Users/kenzatazi/Downloads/head_of_soils_recommendations_MGM.csv'
+filepath = '/Users/kenzatazi/Downloads/climate_monthly_seasonal_2005_2010_with_spatial_attributes_filtered.csv'
 
 filepath1 = '/Users/kenzatazi/Downloads/FAOSTAT_data_3-11-2020.csv'
 filepath2 = '/Users/kenzatazi/Downloads/Data_Extract_From_WDI_Database_Archives_(beta)/291aee82-3d52-4642-abb2-337c201bfa47_Data.csv'
@@ -144,18 +144,31 @@ def soil_types(filepath):
     plt.show()
 
 
-def gdp(filepath1, filepath2):
-    yield_df = pd.read_csv(filepath1)
-    gdp_df = pd.read_csv(filepath2)
-    gdp_df['GDP'] = pd.to_numeric(gdp_df['2010 [YR2010]'], errors='coerce')
-    
-    big_df = pd.concat([yield_df, gdp_df], axis=1, sort=False)
-    df = big_df.dropna()
-    
-    df.plot.scatter(x='GDP', y='Value')
-    plt.title('Yield as a function of GDP per capita')
-    plt.xlabel('GDP per capita (USD)')
-    plt.ylabel('Yield (tonnes/hectare)')
+def irrigation(filepath):
+    """ Returns map of irrigated and waterfed maize """
+    df_raw =  pd.read_csv(filepath)
+
+
+def elevation_slope(filepath):
+    """ Returns histograms of elevation and slope """
+    df_raw =  pd.read_csv(filepath)
+
+    elevation = (df_raw['elevation'].values).flatten()
+    slope = (df_raw['slope'].values).flatten()
+
+    #  Plots
+    fig, axs = plt.subplots(2, 1)
+    axs[0].hist(elevation, bins=50, density=True, label='Elevation')
+    axs[0].legend(facecolor='white')
+    axs[0].set_xlabel('m')
+
+    axs[1].hist(slope, bins=50, density=True, label= 'Slope')
+    axs[1].legend(facecolor='white')
+    axs[1].set_xlabel('deg')
+
+    plt.show()
+
+
 
 
 def climate_zones(filepath):
