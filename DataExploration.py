@@ -10,9 +10,6 @@ import cartopy.feature as cf
 
 filepath = '/Users/kenzatazi/Downloads/climate_monthly_seasonal_2005_2010_with_spatial_attributes_filtered.csv'
 
-filepath1 = '/Users/kenzatazi/Downloads/FAOSTAT_data_3-11-2020.csv'
-filepath2 = '/Users/kenzatazi/Downloads/Data_Extract_From_WDI_Database_Archives_(beta)/291aee82-3d52-4642-abb2-337c201bfa47_Data.csv'
-
 
 def historical_yield(filepath, year):
     """ Returns the global map of maize yield """
@@ -105,17 +102,16 @@ def agroclimatic_indicators(filepath):
     fig1, axs1 = plt.subplots(2, 1)
     axs1[0].hist(FD, bins=10, density=True, label='Frost Days')
     axs1[0].legend(facecolor='white')
-    axs1[1].hist(WW, bins=50, density=True, label= 'Warm and Wet Days')
+    axs1[1].hist(WW, bins=50, density=True, label='Warm and Wet Days')
     axs1[1].legend(facecolor='white')
     axs1[1].set_xlabel('Days')
 
-
     fig2, axs2 = plt.subplots(3, 1)
-    axs2[0].hist(CDD, bins=92, density=True, label= 'Cumulative Dry Days')
+    axs2[0].hist(CDD, bins=92, density=True, label='Maximum Consecutive Dry Days')
     axs2[0].legend(facecolor='white')
-    axs2[1].hist(CFD, bins=92, density=True, label='Cumulative Frost Days')
+    axs2[1].hist(CFD, bins=92, density=True, label='Maximum Consecutive Frost Days')
     axs2[1].legend(facecolor='white')
-    axs2[2].hist(CWD, bins=92, density=True, label='Cumulative Wet Days')
+    axs2[2].hist(CWD, bins=92, density=True, label='Maximum Consecutive Wet Days')
     axs2[2].legend(facecolor='white')
     axs2[2].set_xlabel('Days')
 
@@ -146,7 +142,28 @@ def soil_types(filepath):
 
 def irrigation(filepath):
     """ Returns map of irrigated and waterfed maize """
+    
+    # create dataframe of relevant variables
     df_raw =  pd.read_csv(filepath)
+    df_values = df_raw[['lon','lat','irrigation']]
+
+    df_pv = df_values.pivot(index='lat', columns='lon')
+    df_pv = df_pv.droplevel(0, axis=1)
+    da = xr.DataArray(data=df_pv)
+
+    # plot
+    plt.figure(figsize=(12,5))
+    ax = plt.subplot(projection=ccrs.PlateCarree())
+    da.plot.pcolormesh('lon', 'lat', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 
+                                                         'format': tck.PercentFormatter(xmax=100.0)}) 
+    ax.gridlines(draw_labels=True)
+    ax.coastlines(resolution='50m')
+    ax.set_extent([-160, 180, -60, 85])
+    ax.set_title('Irrigation \n ', size='xx-large')
+    ax.set_xlabel('Longitude')
+    ax.set_ylabel('Latitude')
+    
+    plt.show()
 
 
 def elevation_slope(filepath):
@@ -167,8 +184,6 @@ def elevation_slope(filepath):
     axs[1].set_xlabel('deg')
 
     plt.show()
-
-
 
 
 def climate_zones(filepath):
