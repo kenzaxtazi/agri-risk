@@ -6,29 +6,43 @@ import xarray as xr
 import cartopy.feature as cf
 import seaborn as sns
 
-filepath = '/Users/kenzatazi/Downloads/yields.csv'
-year = '2040'
+filepath1 = '/Users/kenzatazi/Downloads/yields.csv'
+filepath2 = '/Users/kenzatazi/Downloads/predictions_with_countries.csv'
+filepath3 = '/Users/kenzatazi/Downloads/head_of_soils_recommendations_MGM-2.csv'    
 
 sns.set(style="white", context="talk")
 
-def static_worldmap(filepath, year):
+def prediction_formatting(filepath2, filepath3):
+    
+    df =  pd.read_csv(filepath3)
+    df_hist = df[['x','y','maize_a_2010', 'iso3']]
+
+    df = pd.read_csv(filepath2)
+    df_new= df[['lat', 'lon', '2040_mean', '2040_std', '2025_mean', '2025_std', '2020_mean', '2020_std']]
+
+    df_hist['2040_change'] = df_new['2040_mean']/df_hist['maize_a_2010'] - 1
+    df_hist['2025_change'] = df_new['2025_mean']/df_hist['maize_a_2010'] - 1
+    df_hist['2020_change'] = df_new['2020_mean']/df_hist['maize_a_2010'] - 1
+
+    return df_hist
+
+def static_worldmap(df_raw, year='2040', RCP='8.5'):
     """ Produces static plot of world yield predictions """
 
     # create dataframe of relevant variables
-    df_raw =  pd.read_csv(filepath)
-    df = df_raw[['x','y','maiz_percent_change','iso3_2005']]
+    df = df_raw[['x','y', year+'_change','iso3']]
 
     # calculate mean changes for global, LIFDC and US
-    global_change = df['maiz_percent_change'].mean()
-    lifdc_df = df[df['iso3_2005'].isin(['AFG', 'BGD', 'BEN', 'BGD', 'BDI', 'CMR', 'CAF',
+    global_change = df[ year+'_change'].mean()
+    lifdc_df = df[df['iso3'].isin(['AFG', 'BGD', 'BEN', 'BGD', 'BDI', 'CMR', 'CAF',
                     'TCD', 'COG', 'CIV', 'PRK', 'COD', 'DJI', 'ERI', 'ETH', 'GMB', 'GHA',
                     'GNB', 'HTI', 'IND', 'KEN', 'KGZ', 'LSO', 'LBR', 'MDG', 'MWI', 'MLI',
                     'MRT', 'MOZ', 'NPL', 'NIC', 'NER', 'RWA', 'STP', 'SEN', 'SLE', 'SOM',
                     'SLP', 'SSD', 'SDN', 'SYR', 'TJK', 'TGO', 'UGA', 'TZA', 'UZB', 'VNM',
                     'YEM', 'ZWE'])]
-    lifdc_change = lifdc_df['maiz_percent_change'].mean()
-    us_df = df[df['iso3_2005'] == 'USA']
-    us_change = us_df['maiz_percent_change'].mean()
+    lifdc_change = lifdc_df[year+'_change'].mean()
+    us_df = df[df['iso3'] == 'USA']
+    us_change = us_df[ year+'_change'].mean()
 
     # text for box
     t1 = 'Yield change:'
@@ -37,7 +51,7 @@ def static_worldmap(filepath, year):
     t4 = 'Global= {:.2%}'.format(global_change)
 
     # convert dataframe to data array
-    df_values = df[['x','y','maiz_percent_change']]
+    df_values = df[['x','y', year+'_change']]
     df_pv = df_values.pivot(index='y', columns='x')
     df_pv = df_pv.droplevel(0, axis=1)
     da = xr.DataArray(data=df_pv)
@@ -59,20 +73,20 @@ def static_worldmap(filepath, year):
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
 
-def static_countrymap(filepath, year, iso3='USA'):
+
+def static_countrymap(df_raw, year='2040', iso3='USA', RCP='8.5'):
     """ Produces static plot of a given country's yield predictions """
     
     coords = {'USA': [-135, -65, 22, 55], 'CHN': [71, 140, 15, 55],
               'BRA': [-80, -30, -40, 8]}
 
     # create dataframe of relevant variables
-    df_raw =  pd.read_csv(filepath)
-    df = df_raw[['x','y','maiz_percent_change','iso3_2005']]
-    country_df = df[df['iso3_2005'] == iso3]
-    country_change = country_df['maiz_percent_change'].mean()
+    df = df_raw[['x','y', year+'_change','iso3']]
+    country_df = df[df['iso3'] == iso3]
+    country_change = country_df[year+'_change'].mean()
 
     # convert dataframe to data array
-    df_values = country_df[['x','y','maiz_percent_change']]
+    df_values = country_df[['x','y', year+'_change']]
     df_pv = df_values.pivot(index='y', columns='x')
     df_pv = df_pv.droplevel(0, axis=1)
     da = xr.DataArray(data=df_pv)
@@ -95,7 +109,7 @@ def static_countrymap(filepath, year, iso3='USA'):
     plt.show()
 
 
-def yield_vs_time(filepath, year):
+def yield_vs_time(df_raw, year):
     """ Return a matplotlib graph of yield as a function of time """
 
     # Seperate data into classes
@@ -107,7 +121,7 @@ def yield_vs_time(filepath, year):
     plt.ylabel('Yield change')
 
 
-def feature_importance(filepath):
+def feature_importance(df_raw):
     """ returns plot of feature importance """
     
     # fake dataframe 
