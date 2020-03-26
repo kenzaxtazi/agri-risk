@@ -268,7 +268,7 @@ def soil_grouping(filepath1):
     df1 = df.groupby(['soil_types']).sum()
     total = df1['area weights'].sum()
     df1['fraction'] =  df1['area weights']/total
-    df1.plot.bar(y='fraction')
+    df1.plot.bar(y='fraction', legend=False)
     plt.ylabel('Area fraction')
     plt.xlabel('Soil type')
     plt.show()
