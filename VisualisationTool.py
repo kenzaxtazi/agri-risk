@@ -26,7 +26,7 @@ def prediction_formatting(filepath2, filepath3):
 
     return df_hist
 
-def static_worldmap(df_raw, year='2040', RCP='8.5'):
+def static_worldmap(df_raw, year='2040'):
     """ Produces static plot of world yield predictions """
 
     # create dataframe of relevant variables
@@ -59,8 +59,8 @@ def static_worldmap(df_raw, year='2040', RCP='8.5'):
     # plot
     plt.figure(figsize=(12,5))
     ax = plt.subplot(projection=ccrs.PlateCarree())
-    da.plot.pcolormesh('x', 'y', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 
-                                                     'format': tck.PercentFormatter(xmax=1.0)}) #'label': '%'
+    da.plot.pcolormesh('x', 'y', ax=ax, vmin=-1, vmax=1, extend='both', cmap='RdBu_r',
+                       cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 'format': tck.PercentFormatter(xmax=1.0) }) #'label': '%'
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
     ax.set_extent([-160, 180, -60, 85])
@@ -94,8 +94,8 @@ def static_countrymap(df_raw, year='2040', iso3='USA', RCP='8.5'):
     # plot
     plt.figure(figsize=(12,5))
     ax = plt.subplot(projection=ccrs.PlateCarree())
-    da.plot.pcolormesh('x', 'y', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 
-                                                     'format': tck.PercentFormatter(xmax=1.0)})
+    da.plot.pcolormesh('x', 'y', ax=ax, vmin=-1, vmax=1, extend='both', cmap='RdBu_r',
+                       cbar_kwargs={'fraction': 0.019, 'pad': 0.10,'format': tck.PercentFormatter(xmax=1.0)})
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
     ax.add_feature(cf.BORDERS)
