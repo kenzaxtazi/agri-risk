@@ -229,3 +229,49 @@ def area_weights(df, lat_column):
     theta2 = (abs(df[lat_column]) + 0.041667) * np.pi /180.0
 
     df['area weights'] = (abs(np.cos(theta1)) - abs(np.cos(theta2)))
+
+def soil_grouping(filepath1):
+    
+    df_raw =  pd.read_csv(filepath1)
+    area_weights(df_raw, 'y')
+
+    df = df_raw[['soil_types', 'area weights']]
+
+    df = df.replace(to_replace=np.arange(1,15), value='Cambisol')
+    df = df.replace(to_replace=np.arange(15,19), value='Chernozem')
+    df = df.replace(to_replace=np.arange(19,22), value='Podzoluvisol')
+    df = df.replace(to_replace=22, value='Rendzima')
+    df = df.replace(to_replace= np.arange(23,29), value='Ferrasol')
+    df = df.replace(to_replace= np.arange(29,36), value='Gleysol')
+    df = df.replace(to_replace= np.arange(36,40), value='Phaozem')
+    df = df.replace(to_replace=40, value='Lithosol')
+    df = df.replace(to_replace= np.arange(41,45), value='Fluvisol')
+    df = df.replace(to_replace= np.arange(45,48), value='Kastanozem')
+    df = df.replace(to_replace= np.arange(48,56), value='Luvisol')
+    df = df.replace(to_replace= np.arange(56,58), value='Greyzem')
+    df = df.replace(to_replace= np.arange(58,61), value='Nitosol')
+    df = df.replace(to_replace= np.arange(61,64), value='Histosol')
+    df = df.replace(to_replace= np.arange(64,69), value='Podzol')
+    df = df.replace(to_replace= np.arange(69,74), value='Arenosol')
+    df = df.replace(to_replace= np.arange(74,78), value='Regosol')
+    df = df.replace(to_replace= np.arange(78,81), value='Solonetz')
+    df = df.replace(to_replace= np.arange(81,85), value='Andosol')
+    df = df.replace(to_replace=85, value='Ranker')
+    df = df.replace(to_replace= np.arange(86,88), value='Vertisol')
+    df = df.replace(to_replace= np.arange(88,94), value='Planosol')
+    df = df.replace(to_replace= np.arange(94,98), value='Xerosol')
+    df = df.replace(to_replace= np.arange(98,103), value='Yermosol')
+    df = df.replace(to_replace= np.arange(103,107), value='Solonchak')
+    df = df.replace(to_replace=107, value='Ice')
+    df = df.replace(to_replace=108, value='NA')
+
+    df1 = df.groupby(['soil_types']).sum()
+    total = df1['area weights'].sum()
+    df1['fraction'] =  df1['area weights']/total
+    df1.plot.bar(y='fraction')
+    plt.ylabel('Area fraction')
+    plt.xlabel('Soil type')
+    plt.show()
+
+
+
