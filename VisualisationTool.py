@@ -7,33 +7,26 @@ import cartopy.feature as cf
 import seaborn as sns
 
 filepath1 = '/Users/kenzatazi/Downloads/yields.csv'
-filepath2 = '/Users/kenzatazi/Downloads/predictions_with_countries.csv'
+filepath2 = '/Users/kenzatazi/Downloads/Predictions for Years_ [2040, 2025, 2020].csv'
 filepath3 = '/Users/kenzatazi/Downloads/head_of_soils_recommendations_MGM-2.csv'    
 
 sns.set(style="white", context="talk")
 
-def prediction_formatting(filepath2, filepath3):
+def prediction_formatting(filepath2):
     
-    df =  pd.read_csv(filepath3)
-    df_hist = df[['x','y','maize_a_2010', 'iso3']]
+    df =  pd.read_csv(filepath2)
 
-    df = pd.read_csv(filepath2)
-    df_pre = df[['lat', 'lon', '2040_mean', '2040_std', '2025_mean', '2025_std', '2020_mean', '2020_std']]
+    df['2040_change'] = df['2040_mean']/df['maize_a_2010'] - 1
+    df['2025_change'] = df['2025_mean']/df['maize_a_2010'] - 1
+    df['2020_change'] = df['2020_mean']/df['maize_a_2010'] - 1
 
-    df_new = df_hist.join(df_pre)
-
-    df_new['2040_change'] = df_new['2040_mean']/df_new['maize_a_2010'] - 1
-    df_new['2025_change'] = df_new['2025_mean']/df_new['maize_a_2010'] - 1
-    df_new['2020_change'] = df_new['2020_mean']/df_new['maize_a_2010'] - 1
-
-    return df_new
-
+    return df
 
 def mean_worldmap(df_raw, year='2040'):
     """ Produces static plot of world yield changes """
 
     # create dataframe of relevant variables
-    df = df_raw[['x','y', year+'_var','iso3']]
+    df = df_raw[['lon','lat', year+'_change','iso3']]
 
     # calculate mean changes for global, LIFDC and US
     global_change = df[ year+'_change'].mean()
@@ -54,19 +47,20 @@ def mean_worldmap(df_raw, year='2040'):
     t4 = 'Global= {:.2%}'.format(global_change)
 
     # convert dataframe to data array
-    df_values = df[['x','y', year+'_change']]
-    df_pv = df_values.pivot(index='y', columns='x')
+    df_values = df[['lon','lat', year+'_change']]
+    df_pv = df_values.pivot(index='lat', columns='lon')
     df_pv = df_pv.droplevel(0, axis=1)
     da = xr.DataArray(data=df_pv)
 
     # plot
     plt.figure(figsize=(12,5))
     ax = plt.subplot(projection=ccrs.PlateCarree())
-    da.plot.pcolormesh('x', 'y', ax=ax, vmin=-1, vmax=1, extend='both', cmap='RdBu_r',
+    da.plot.pcolormesh('lon', 'lat', ax=ax, vmin=-1, vmax=1, extend='both', cmap='RdBu_r',
                        cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 'format': tck.PercentFormatter(xmax=1.0) }) #'label': '%'
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
     ax.set_extent([-160, 180, -60, 85])
+    ax.set_ticks()
     ax.set_title('Maize Yield Change ' + year + '\n', size='x-large')
     ax.set_xlabel('Longitude')
     ax.set_ylabel('Latitude')
@@ -74,6 +68,8 @@ def mean_worldmap(df_raw, year='2040'):
     
     plt.text(-170,-50, t1 + '\n' + t2 + '\n' + t3 + '\n'+ t4, fontsize=10,
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10)
     plt.show()
 
 def std_worldmap(df_raw, year='2040'):
@@ -246,4 +242,49 @@ def feature_importance(df_raw):
 
     # could make this more interesting by including the spread and error bar
 
+def yield_map(filepath2, year='2040'):
+    """ Produces static plot of world yield """
 
+    # create dataframe of relevant variables
+    df = pd.read_csv(filepath2)
+
+    # calculate mean changes for global, LIFDC and US
+    global_change = df[ year+'_mean'].mean()
+    lifdc_df = df[df['iso3'].isin(['AFG', 'BGD', 'BEN', 'BGD', 'BDI', 'CMR', 'CAF',
+                    'TCD', 'COG', 'CIV', 'PRK', 'COD', 'DJI', 'ERI', 'ETH', 'GMB', 'GHA',
+                    'GNB', 'HTI', 'IND', 'KEN', 'KGZ', 'LSO', 'LBR', 'MDG', 'MWI', 'MLI',
+                    'MRT', 'MOZ', 'NPL', 'NIC', 'NER', 'RWA', 'STP', 'SEN', 'SLE', 'SOM',
+                    'SLP', 'SSD', 'SDN', 'SYR', 'TJK', 'TGO', 'UGA', 'TZA', 'UZB', 'VNM',
+                    'YEM', 'ZWE'])]
+    lifdc_change = lifdc_df[year+'_mean'].mean()
+    us_df = df[df['iso3'] == 'USA']
+    us_change = us_df[ year+'_mean'].mean()
+
+    # text for box
+    t1 = 'Yield change:'
+    t2 = 'USA= {:.2%}'.format(us_change)
+    t3 = 'LIFDC = {:.2%}'.format(lifdc_change)
+    t4 = 'Global= {:.2%}'.format(global_change)
+
+    # convert dataframe to data array
+    df_values = df[['lon','lat', year+'_mean']]
+    df_pv = df_values.pivot(index='lon', columns='lat')
+    df_pv = df_pv.droplevel(0, axis=1)
+    da = xr.DataArray(data=df_pv)
+
+    # plot
+    plt.figure(figsize=(12,5))
+    ax = plt.subplot(projection=ccrs.PlateCarree())
+    da.plot.pcolormesh('lon', 'lat', ax=ax, vmin=-1, vmax=1, extend='both', cmap='RdBu_r',
+                       cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 'format': tck.PercentFormatter(xmax=1.0) }) #'label': '%'
+    ax.gridlines(draw_labels=True)
+    ax.coastlines(resolution='50m')
+    ax.set_extent([-160, 180, -60, 85])
+    ax.set_title('Maize Yield ' + year + '\n', size='x-large')
+    ax.set_xlabel('Longitude')
+    ax.set_ylabel('Latitude')
+    ax.set_aspect("equal")
+    
+    plt.text(-170,-50, t1 + '\n' + t2 + '\n' + t3 + '\n'+ t4, fontsize=10,
+             bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
+    plt.show()
