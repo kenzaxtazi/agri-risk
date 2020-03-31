@@ -8,7 +8,7 @@ import seaborn as sns
 
 filepath1 = '/Users/kenzatazi/Downloads/yields.csv'
 filepath2 = '/Users/kenzatazi/Downloads/Predictions for Years_ [2040, 2025, 2020].csv'
-filepath3 = '/Users/kenzatazi/Downloads/head_of_soils_recommendations_MGM-2.csv'    
+    
 
 sns.set(style="white", context="talk")
 
@@ -55,12 +55,13 @@ def mean_worldmap(df_raw, year='2040'):
     # plot
     plt.figure(figsize=(12,5))
     ax = plt.subplot(projection=ccrs.PlateCarree())
-    da.plot.pcolormesh('lon', 'lat', ax=ax, vmin=-1, vmax=1, extend='both', cmap='RdBu_r',
-                       cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 'format': tck.PercentFormatter(xmax=1.0) }) #'label': '%'
-    ax.gridlines(draw_labels=True)
+    da.plot.pcolormesh('lon', 'lat', ax=ax, vmax=1, extend='both', cmap='RdBu_r',
+                       cbar_kwargs={'fraction': 0.019,'pad': 0.10, 'format': tck.PercentFormatter(xmax=1.0) }) #'label': '%'
+    gl = ax.gridlines(draw_labels=True)
+    gl.xlabel_style = {'size': 12}
+    gl.ylabel_style = {'size': 12}
     ax.coastlines(resolution='50m')
     ax.set_extent([-160, 180, -60, 85])
-    ax.set_ticks()
     ax.set_title('Maize Yield Change ' + year + '\n', size='x-large')
     ax.set_xlabel('Longitude')
     ax.set_ylabel('Latitude')
@@ -68,15 +69,13 @@ def mean_worldmap(df_raw, year='2040'):
     
     plt.text(-170,-50, t1 + '\n' + t2 + '\n' + t3 + '\n'+ t4, fontsize=10,
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
-    plt.xticks(fontsize=10)
-    plt.yticks(fontsize=10)
     plt.show()
 
 def std_worldmap(df_raw, year='2040'):
     """ Produces static plot of world yield predictions """
 
     # create dataframe of relevant variables
-    df = df_raw[['x','y', year+'_std','iso3']]
+    df = df_raw[['lon','lat', year+'_std','iso3']]
 
     # calculate mean changes for global, LIFDC and US
     global_change = df[ year+'_std'].mean()
@@ -97,16 +96,19 @@ def std_worldmap(df_raw, year='2040'):
     t4 = 'Global= {:.2f} ton/ha'.format(global_change)
 
     # convert dataframe to data array
-    df_values = df[['x','y', year+'_std']]
-    df_pv = df_values.pivot(index='y', columns='x')
+    df_values = df[['lon','lat', year+'_std']]
+    df_pv = df_values.pivot(index='lon', columns='lat')
     df_pv = df_pv.droplevel(0, axis=1)
     da = xr.DataArray(data=df_pv)
 
     # plot
     plt.figure(figsize=(12,5))
     ax = plt.subplot(projection=ccrs.PlateCarree())
-    da.plot.pcolormesh('x', 'y', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10 })
-    ax.gridlines(draw_labels=True)
+    da.plot.pcolormesh('lon', 'lat', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10},
+                       cmap= 'magma_r')
+    gl = ax.gridlines(draw_labels=True)
+    gl.xlabel_style = {'size': 12}
+    gl.ylabel_style = {'size': 12}
     ax.coastlines(resolution='50m')
     ax.set_extent([-160, 180, -60, 85])
     ax.set_title('Maize Yield Standard Deviation ' + year + '\n', size='x-large')
@@ -122,24 +124,24 @@ def std_worldmap(df_raw, year='2040'):
 def mean_countrymap(df_raw, year='2040', iso3='USA'):
     """ Produces static plot of a given country's yield predictions """
     
-    coords = {'USA': [-135, -65, 22, 55], 'CHN': [71, 140, 15, 55],
-              'BRA': [-80, -30, -40, 8]}
+    coords = {'USA': [-135, -65, 22, 50], 'CHN': [71, 140, 10, 50],
+              'BRA': [-80, -30, -45, 8]}
 
     # create dataframe of relevant variables
-    df = df_raw[['x','y', year+'_change','iso3']]
+    df = df_raw[['lon','lat', year+'_change','iso3']]
     country_df = df[df['iso3'] == iso3]
     country_change = country_df[year+'_change'].mean()
 
     # convert dataframe to data array
-    df_values = country_df[['x','y', year+'_change']]
-    df_pv = df_values.pivot(index='y', columns='x')
+    df_values = country_df[['lon','lat', year+'_change']]
+    df_pv = df_values.pivot(index='lat', columns='lon')
     df_pv = df_pv.droplevel(0, axis=1)
     da = xr.DataArray(data=df_pv)
 
     # plot
     plt.figure(figsize=(12,5))
     ax = plt.subplot(projection=ccrs.PlateCarree())
-    da.plot.pcolormesh('x', 'y', ax=ax, vmin=-1, vmax=1, extend='both', cmap='RdBu_r',
+    da.plot.pcolormesh('lon', 'lat', ax=ax, vmin=-1, vmax=1, extend='both', cmap='RdBu_r',
                        cbar_kwargs={'fraction': 0.019, 'pad': 0.10,'format': tck.PercentFormatter(xmax=1.0)})
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
@@ -149,31 +151,32 @@ def mean_countrymap(df_raw, year='2040', iso3='USA'):
     ax.set_aspect("equal")
     
     t1 = 'National yield change: {:.2%}'.format(country_change)
-    plt.text((coords[iso3])[0]+5, (coords[iso3])[2]+5, t1, fontsize=10, 
+    plt.text((coords[iso3])[0]+5, (coords[iso3])[2]+5, t1, fontsize=12, 
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
 
 def std_countrymap(df_raw, year='2040', iso3='USA'):
     """ Produces static plot of a given country's yield predictions """
     
-    coords = {'USA': [-135, -65, 22, 55], 'CHN': [71, 140, 10, 55],
-              'BRA': [-80, -30, -40, 8]}
+    coords = {'USA': [-135, -65, 22, 50], 'CHN': [71, 140, 10, 50],
+              'BRA': [-80, -30, -45, 8]}
 
     # create dataframe of relevant variables
-    df = df_raw[['x','y', year+'_std','iso3']]
+    df = df_raw[['lon','lat', year+'_std','iso3']]
     country_df = df[df['iso3'] == iso3]
     country_change = country_df[year+'_std'].mean()
 
     # convert dataframe to data array
-    df_values = country_df[['x','y', year+'_std']]
-    df_pv = df_values.pivot(index='y', columns='x')
+    df_values = country_df[['lon','lat', year+'_std']]
+    df_pv = df_values.pivot(index='lat', columns='lon')
     df_pv = df_pv.droplevel(0, axis=1)
     da = xr.DataArray(data=df_pv)
 
     # plot
     plt.figure(figsize=(12,5))
     ax = plt.subplot(projection=ccrs.PlateCarree())
-    da.plot.pcolormesh('x', 'y', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10})
+    da.plot.pcolormesh('lon', 'lat', ax=ax, cmap= 'magma_r',
+                       cbar_kwargs={'fraction': 0.019, 'pad': 0.10})
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
     ax.add_feature(cf.BORDERS)
@@ -211,17 +214,17 @@ def yield_vs_time(filepath2):
                          df['8p5_2039_predict'], df['8p5_2040_predict'], df['8p5_2042_predict']],
                          ignore_index=True, axis=0)
     
-    df_violin = pd.concat([df_2020, df_2025, df_2040], axis=1)
-    df_violin.columns = ['2020', '2025', '2040']
+    df_violin = pd.concat([df['maize_a_2010'], df_2020, df_2025, df_2040], axis=1)
+    df_violin.columns = ['2010', '2020', '2025', '2040']
 
     # Plot
-    pal = sns.cubehelix_palette(3, rot=-.5, dark=.3)
 
-    plt.figure(figsize=(12,5))
-    plt.title('Yield as a function of time')
+    plt.figure()
+    plt.title('Yield as a function of time \n')
     plt.xlabel('Year')
     plt.ylabel('Yield (ton/ha)')
-    sns.violinplot(data=df_violin, palette=pal)
+    plt.grid(which= 'major', axis='y')
+    sns.violinplot(data=df_violin, palette='Blues', inner="quart")
     plt.show()
 
 
@@ -276,7 +279,7 @@ def yield_map(filepath2, year='2040'):
     plt.figure(figsize=(12,5))
     ax = plt.subplot(projection=ccrs.PlateCarree())
     da.plot.pcolormesh('lon', 'lat', ax=ax, vmin=-1, vmax=1, extend='both', cmap='RdBu_r',
-                       cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 'format': tck.PercentFormatter(xmax=1.0) }) #'label': '%'
+                       cbar_kwargs={'fraction': 0.01, 'pad': 0.10, 'format': tck.PercentFormatter(xmax=1.0) }) #'label': '%'
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
     ax.set_extent([-160, 180, -60, 85])

@@ -17,6 +17,7 @@ def historical_yield(filepath1, year):
     # create dataframe of relevant variables
     df_raw =  pd.read_csv(filepath1)
     df = df_raw[['x','y','maize_a_' + year, 'iso3']]
+    df['maize_a_' + year] = df['maize_a_' + year]/1000 
 
     # calculate mean for global, LIFDC and US
     global_mean = df['maize_a_' + year].mean()
@@ -33,9 +34,9 @@ def historical_yield(filepath1, year):
 
     # text for box
     t1 = 'Average yield :'
-    t2 = 'USA= {:.2e} ton/ha'.format(us_mean)
-    t3 = 'LIFDC = {:.2e} ton/ha'.format(lifdc_mean)
-    t4 = 'Global= {:.2e} ton/ha'.format(global_mean)
+    t2 = 'USA= {:.2f} ton/ha'.format(us_mean)
+    t3 = 'LIFDC = {:.2f} ton/ha'.format(lifdc_mean)
+    t4 = 'Global= {:.2f} ton/ha'.format(global_mean)
 
     # to DataArray
     df_values = df[['x','y','maize_a_' + year]]
@@ -46,8 +47,8 @@ def historical_yield(filepath1, year):
     # plot
     plt.figure(figsize=(12,5))
     ax = plt.subplot(projection=ccrs.PlateCarree())
-    da.plot.pcolormesh('x', 'y', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 
-                                                     'format': '%.2e'})
+    da.plot.pcolormesh('x', 'y', ax=ax, cmap='magma_r', vmin=0,
+                       cbar_kwargs={'fraction': 0.019, 'pad': 0.10,'format': '%.2f'})
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
     ax.set_extent([-160, 180, -60, 85])
@@ -177,13 +178,20 @@ def irrigation(filepath2):
 
 def elevation_slope(filepath2):
     """ Returns histograms of elevation and slope """
+
     df_raw =  pd.read_csv(filepath2)
+
     
     area_weights(df_raw, 'lat')
     w = (df_raw['area weights'].values).flatten()
 
     elevation = (df_raw['elevation'].values).flatten()
     slope = (df_raw['slope'].values).flatten()
+    df_values = df_raw[['lon','lat','elevation']]
+
+    df_pv = df_values.pivot(index='lat', columns='lon')
+    df_pv = df_pv.droplevel(0, axis=1)
+    da = xr.DataArray(data=df_pv)
 
     #  Plots
     fig, axs = plt.subplots(2, 1)
@@ -195,6 +203,17 @@ def elevation_slope(filepath2):
     axs[1].legend(facecolor='white')
     axs[1].set_xlabel('deg')
 
+    plt.figure(figsize=(12,5))
+    ax = plt.subplot(projection=ccrs.PlateCarree())
+    da.plot.pcolormesh('lon', 'lat', ax=ax, cbar_kwargs={'fraction': 0.019, 'pad': 0.10, 
+                                                         'format': tck.PercentFormatter(xmax=100.0)}) 
+    ax.gridlines(draw_labels=True)
+    ax.coastlines(resolution='50m')
+    ax.set_extent([-160, 180, -60, 85])
+    ax.set_title('Elevation \n ', size='xx-large')
+    ax.set_xlabel('Longitude')
+    ax.set_ylabel('Latitude')
+    
     plt.show()
 
 
@@ -229,6 +248,7 @@ def area_weights(df, lat_column):
     theta2 = (abs(df[lat_column]) + 0.041667) * np.pi /180.0
 
     df['area weights'] = (abs(np.cos(theta1)) - abs(np.cos(theta2)))
+
 
 def soil_grouping(filepath1):
     
