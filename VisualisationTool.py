@@ -6,16 +6,16 @@ import xarray as xr
 import cartopy.feature as cf
 import seaborn as sns
 
-filepath1 = '/Users/kenzatazi/Downloads/yields.csv'
-filepath2 = '/Users/kenzatazi/Downloads/Predictions for Years_ [2040, 2025, 2020].csv'
+
+filepath = '/Users/kenzatazi/Downloads/Predictions for Years_ [2040, 2025, 2020].csv'
     
 
 sns.set(style="white", context="talk")
 
-def prediction_formatting(filepath2):
+def prediction_formatting(filepath):
     """ Returns a dataframe with columns for map plotting. """
     
-    df =  pd.read_csv(filepath2)
+    df =  pd.read_csv(filepath)
 
     df['2040_change'] = df['2040_mean']/df['maize_a_2010'] - 1
     df['2025_change'] = df['2025_mean']/df['maize_a_2010'] - 1
@@ -279,11 +279,11 @@ def std_countrymap(df_raw, year='2040', iso3='USA'):
     plt.show()
 
 
-def yield_vs_time(filepath2):
+def yield_vs_time(filepath):
     """ Returns violin graph of yield distribution as a function of time. """
 
     # Seperate data into classes
-    df= pd.read_csv(filepath2)
+    df= pd.read_csv(filepath)
 
     df_2020 = pd.concat([df['2p6_2019_predict'], df['2p6_2020_predict'], df['2p6_2021_predict'],
                          df['4p5_2019_predict'], df['4p5_2020_predict'], df['4p5_2021_predict'],
