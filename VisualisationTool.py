@@ -317,7 +317,7 @@ def yield_vs_time(filepath):
     sns.violinplot(data=df_violin, palette='Blues', inner="quart")
     plt.show()
 
-def feature_importance(df_raw):
+def feature_importance():
     """ Dummy function to create feature importance graph. """
     
     # fake dataframe 
