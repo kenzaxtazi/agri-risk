@@ -11,8 +11,8 @@ filepath1 = '/Users/kenzatazi/Downloads/head_of_soils_recommendations_MGM-2.csv'
 filepath2 = '/Users/kenzatazi/Downloads/climate_monthly_seasonal_2005_2010_with_spatial_attributes_filtered.csv'
 
 
-def historical_yield(filepath1, year):
-    """ Returns the global map of maize yield """
+def historical_yield(filepath1, year='2005'):
+    """ Returns the global map of historic maize yield for 2005 or 2010."""
     
     # create dataframe of relevant variables
     df_raw =  pd.read_csv(filepath1)
@@ -62,7 +62,7 @@ def historical_yield(filepath1, year):
 
 
 def agroclimatic_indicators(filepath1):
-    """ returns histograms of the different indicators for 2010"""
+    """ Returns histograms of different agroclimatic indicators for 2010. """
     # Data (look at spread in different places over one year)
 
     df_raw =  pd.read_csv(filepath1)
@@ -138,7 +138,8 @@ def agroclimatic_indicators(filepath1):
 
 
 def soil_types(filepath1):
-    
+    """ Returns histogram of the 106 soil types. """
+
     df_raw =  pd.read_csv(filepath1)
     area_weights(df_raw, 'y')
 
@@ -151,7 +152,7 @@ def soil_types(filepath1):
 
 
 def irrigation(filepath2):
-    """ Returns map of irrigated and waterfed maize """
+    """ Returns global map of irrigated and waterfed maize. """
     
     # create dataframe of relevant variables
     df_raw =  pd.read_csv(filepath2)
@@ -177,7 +178,7 @@ def irrigation(filepath2):
 
 
 def elevation_slope(filepath2):
-    """ Returns histograms of elevation and slope """
+    """ Returns histograms of elevation and slope. """
 
     df_raw =  pd.read_csv(filepath2)
 
@@ -218,8 +219,7 @@ def elevation_slope(filepath2):
 
 
 def climate_zones(filepath1):
-
-    """ bar chart with climate zones of haversted areas """
+    """ Returns bar chart of the maize climate zones.  """
 
     names = ['Tropics', 'Subtropics\n(summer\nrainfall)',
              'Subtropics\n(winter\nrainfall)', 'Temperate\n(oceanic)',
@@ -241,16 +241,17 @@ def climate_zones(filepath1):
     plt.show()
 
 
-def area_weights(df, lat_column):
-    """ returns area weights for a given latitude """
+def area_weights(df, latitude_column):
+    """ Creates new column of area weights for a dataframe of 5 by 5 arcminute grid coordinates. """
 
-    theta1 = (abs(df[lat_column]) - 0.041667) * np.pi /180.0
-    theta2 = (abs(df[lat_column]) + 0.041667) * np.pi /180.0
+    theta1 = (abs(df[latitude_column]) - 0.041667) * np.pi /180.0
+    theta2 = (abs(df[latitude_column]) + 0.041667) * np.pi /180.0
 
     df['area weights'] = (abs(np.cos(theta1)) - abs(np.cos(theta2)))
 
 
 def soil_grouping(filepath1):
+    """ Returs bar char of grouped soil types. """
     
     df_raw =  pd.read_csv(filepath1)
     area_weights(df_raw, 'y')
