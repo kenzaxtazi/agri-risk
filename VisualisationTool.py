@@ -13,6 +13,7 @@ filepath2 = '/Users/kenzatazi/Downloads/Predictions for Years_ [2040, 2025, 2020
 sns.set(style="white", context="talk")
 
 def prediction_formatting(filepath2):
+    """ Returns a dataframe with columns for map plotting. """
     
     df =  pd.read_csv(filepath2)
 
@@ -24,7 +25,7 @@ def prediction_formatting(filepath2):
 
 
 def change_worldmap(df_raw, year='2040'):
-    """ Produces static plot of world yield changes """
+    """ Returns plot of world yield changes from 2010 to a given year (2020, 2025 or 2040).s"""
 
     # create dataframe of relevant variables
     df = df_raw[['lon','lat', year+'_change','iso3']]
@@ -72,12 +73,11 @@ def change_worldmap(df_raw, year='2040'):
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
 
-def mean_worldmap(filepath2, year='2040'):
-
-    """ Produces static plot of world yield """
+def mean_worldmap(df_raw, year='2040'):
+    """ Returns worldmap of mean yield predictions for given year (2020, 2025 or 2040). """
 
     # create dataframe of relevant variables
-    df = pd.read_csv(filepath2)
+    df = df_raw[['lon','lat', year+'_mean','iso3']]
     df['yield'] = df[year+'_mean']/1000
 
     # calculate mean changes for global, LIFDC and US
@@ -122,7 +122,7 @@ def mean_worldmap(filepath2, year='2040'):
     plt.show()
 
 def std_worldmap(df_raw, year='2040'):
-    """ Produces static plot of world yield predictions """
+    """ Returns world map of standard deviations in yield predictions for 2020, 2025 or 2040. """
 
     # create dataframe of relevant variables
     df = df_raw[['lon','lat', year+'_std','iso3']]
@@ -173,7 +173,7 @@ def std_worldmap(df_raw, year='2040'):
 
 
 def change_countrymap(df_raw, year='2040', iso3='USA'):
-    """ Produces static plot of a given country's yield predictions """
+    """ Produces map of a given country's change in yield from 2010 to 2020, 2025 or 2040. """
     
     coords = {'USA': [-135, -65, 22, 50], 'CHN': [71, 140, 10, 50],
               'BRA': [-80, -30, -45, 8]}
@@ -207,7 +207,7 @@ def change_countrymap(df_raw, year='2040', iso3='USA'):
     plt.show()
 
 def mean_countrymap(df_raw, year='2040', iso3='USA'):
-    """ Produces static plot of a given country's yield predictions """
+    """ Produces map of a given country's mean yield predictions for 2020, 2025 or 2040. """
     
     coords = {'USA': [-135, -65, 22, 50], 'CHN': [71, 140, 10, 50],
               'BRA': [-80, -30, -45, 8]}
@@ -243,7 +243,7 @@ def mean_countrymap(df_raw, year='2040', iso3='USA'):
     plt.show()
 
 def std_countrymap(df_raw, year='2040', iso3='USA'):
-    """ Produces static plot of a given country's yield predictions """
+    """ Produces map of a given country's standard deviations in yield predictions for 2020, 2025 or 2040. """
     
     coords = {'USA': [-135, -65, 22, 50], 'CHN': [71, 140, 10, 50],
               'BRA': [-80, -30, -45, 8]}
@@ -280,7 +280,7 @@ def std_countrymap(df_raw, year='2040', iso3='USA'):
 
 
 def yield_vs_time(filepath2):
-    """ Return a matplotlib graph of yield as a function of time """
+    """ Returns violin graph of yield distribution as a function of time. """
 
     # Seperate data into classes
     df= pd.read_csv(filepath2)
@@ -318,7 +318,7 @@ def yield_vs_time(filepath2):
     plt.show()
 
 def feature_importance(df_raw):
-    """ returns plot of feature importance """
+    """ Dummy function to create feature importance graph. """
     
     # fake dataframe 
     df = pd.DataFrame({'Feature1': 80, 'Feature2': 50, 'Feature3': 44, 
