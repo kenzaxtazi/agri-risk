@@ -30,4 +30,4 @@ All JSON data used is stored in the json_data folder.
 
 ## Requirements
 All packages required are in 'requirements.txt'
-The python version is 3.7.0
+The python version needed is 3.7.0
