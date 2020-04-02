@@ -86,12 +86,19 @@ def compute_seasonal_feature(feature, file_location, year, dataset, interpolatio
 
 def add_degree_split(degree_separation, data_set):
     """
+    This method creates a column in a dataframe used to split the data
+    into groups based on their degree separation. It splits by slices on longitude
+    seperated by a specified amount of degrees
+
     Args:
         degree_separation (int): The degree_separation between slices of
                                  longitude.
 
         data_set (pandas dataframe): The data set that contains longitude
                                      information titled as 'lon'
+
+    Returns:
+        An updated pandas dataframe.
     """
     lon_slices = int(360/degree_separation) + 1
     lon_range = np.linspace(-180,180,lon_slices)
