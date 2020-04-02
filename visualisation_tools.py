@@ -1,3 +1,5 @@
+# This File contains methods for visualising/mapping predicted data.
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tck
@@ -7,14 +9,13 @@ import cartopy.feature as cf
 import seaborn as sns
 
 
-filepath = '/Users/kenzatazi/Downloads/Predictions for Years_ [2040, 2025, 2020].csv'
-    
+filepath = 'data.csv'
 
 sns.set(style="white", context="talk")
 
 def prediction_formatting(filepath):
     """ Returns a dataframe with columns for map plotting. """
-    
+
     df =  pd.read_csv(filepath)
 
     df['2040_change'] = df['2040_mean']/df['maize_a_2010'] - 1
@@ -68,7 +69,7 @@ def change_worldmap(df_raw, year='2040'):
     ax.set_xlabel('Longitude')
     ax.set_ylabel('Latitude')
     ax.set_aspect("equal")
-    
+
     plt.text(-170,-50, t1 + '\n' + t2 + '\n' + t3 + '\n'+ t4, fontsize=10,
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
@@ -116,7 +117,7 @@ def mean_worldmap(df_raw, year='2040'):
     ax.set_xlabel('Longitude')
     ax.set_ylabel('Latitude')
     ax.set_aspect("equal")
-    
+
     plt.text(-170,-50, t1 + '\n' + t2 + '\n' + t3 + '\n'+ t4, fontsize=10,
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
@@ -166,7 +167,7 @@ def std_worldmap(df_raw, year='2040'):
     ax.set_xlabel('Longitude')
     ax.set_ylabel('Latitude')
     ax.set_aspect("equal")
-    
+
     plt.text(-170,-50, t1 + '\n' + t2 + '\n' + t3 + '\n'+ t4, fontsize=10,
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
@@ -174,7 +175,7 @@ def std_worldmap(df_raw, year='2040'):
 
 def change_countrymap(df_raw, year='2040', iso3='USA'):
     """ Produces map of a given country's change in yield from 2010 to 2020, 2025 or 2040. """
-    
+
     coords = {'USA': [-135, -65, 22, 50], 'CHN': [71, 140, 10, 50],
               'BRA': [-80, -30, -45, 8]}
 
@@ -197,18 +198,18 @@ def change_countrymap(df_raw, year='2040', iso3='USA'):
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
     ax.add_feature(cf.BORDERS)
-    ax.set_extent(coords[iso3])  
+    ax.set_extent(coords[iso3])
     ax.set_title('Maize Yield Change ' + year + '\n', size='xx-large')
     ax.set_aspect("equal")
-    
+
     t1 = 'National yield change: {:.2%}'.format(country_change)
-    plt.text((coords[iso3])[0]+5, (coords[iso3])[2]+5, t1, fontsize=12, 
+    plt.text((coords[iso3])[0]+5, (coords[iso3])[2]+5, t1, fontsize=12,
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
 
 def mean_countrymap(df_raw, year='2040', iso3='USA'):
     """ Produces map of a given country's mean yield predictions for 2020, 2025 or 2040. """
-    
+
     coords = {'USA': [-135, -65, 22, 50], 'CHN': [71, 140, 10, 50],
               'BRA': [-80, -30, -45, 8]}
 
@@ -233,18 +234,18 @@ def mean_countrymap(df_raw, year='2040', iso3='USA'):
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
     ax.add_feature(cf.BORDERS)
-    ax.set_extent(coords[iso3])  
+    ax.set_extent(coords[iso3])
     ax.set_title('Maize Yield ' + year + '\n', size='x-large')
     ax.set_aspect("equal")
-    
+
     t1 = 'National yield: {:.2f} ton/ha'.format(country_change)
-    plt.text((coords[iso3])[0]+5, (coords[iso3])[2]+5, t1, fontsize=10, 
+    plt.text((coords[iso3])[0]+5, (coords[iso3])[2]+5, t1, fontsize=10,
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
 
 def std_countrymap(df_raw, year='2040', iso3='USA'):
     """ Produces map of a given country's standard deviations in yield predictions for 2020, 2025 or 2040. """
-    
+
     coords = {'USA': [-135, -65, 22, 50], 'CHN': [71, 140, 10, 50],
               'BRA': [-80, -30, -45, 8]}
 
@@ -269,12 +270,12 @@ def std_countrymap(df_raw, year='2040', iso3='USA'):
     ax.gridlines(draw_labels=True)
     ax.coastlines(resolution='50m')
     ax.add_feature(cf.BORDERS)
-    ax.set_extent(coords[iso3])  
+    ax.set_extent(coords[iso3])
     ax.set_title('Maize Yield Standard Deviation ' + year + '\n', size='x-large')
     ax.set_aspect("equal")
-    
+
     t1 = 'National standard deviation: {:.2f} ton/ha'.format(country_change)
-    plt.text((coords[iso3])[0]+5, (coords[iso3])[2]+5, t1, fontsize=10, 
+    plt.text((coords[iso3])[0]+5, (coords[iso3])[2]+5, t1, fontsize=10,
              bbox=dict(facecolor='white', edgecolor='grey', pad=10.0))
     plt.show()
 
@@ -302,7 +303,7 @@ def yield_vs_time(filepath):
                          df['6p0_2039_predict'], df['6p0_2040_predict'], df['6p0_2042_predict'],
                          df['8p5_2039_predict'], df['8p5_2040_predict'], df['8p5_2042_predict']],
                          ignore_index=True, axis=0)
-    
+
     df_violin = pd.concat([df['maize_a_2010'], df_2020, df_2025, df_2040], axis=1)
     df_violin.columns = ['2010', '2020', '2025', '2040']
     df_violin = df_violin.div(1000)
@@ -319,9 +320,9 @@ def yield_vs_time(filepath):
 
 def feature_importance(df_raw):
     """ Dummy function to create feature importance graph. """
-    
-    # fake dataframe 
-    df = pd.DataFrame({'Feature1': 80, 'Feature2': 50, 'Feature3': 44, 
+
+    # fake dataframe
+    df = pd.DataFrame({'Feature1': 80, 'Feature2': 50, 'Feature3': 44,
                        'Feature4': 13, 'Feature5': 2, 'Feature6': 0.09})
 
     # df =  pd.read_csv(filepath)
@@ -331,5 +332,3 @@ def feature_importance(df_raw):
     sns.barplot(data= df, palette="rocket", orient='h')
     plt.title('Feature Importance')
     plt.xlabel('Importance (%)')
-
-    # could make this more interesting by including the spread and error bar
