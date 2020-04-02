@@ -3,6 +3,9 @@ This repo contains the code used to produce the Guided Team Challenge Report con
 
 It includes scripts that recreate steps detailed in the report.
 
+## General Notes
+The code in this repo is very heavy computationally- RAM, Disk and time taken. It is very unlikely to get this working on a personal computer and will require cloud services such as Google Colab.
+
 
 ## Notebooks and Files
 In an effort to make this code as simple to understand as possible, the code is in multiple different scripts that each have a specific function as follows:
